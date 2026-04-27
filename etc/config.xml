@@ -1,15 +1,13 @@
 <?xml version="1.0"?>
-<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
     <default>
         <taurus_varnish_config>
             <general>
-                <template_url></template_url>
+                <template_url>https://raw.githubusercontent.com/taurus-media/module-varnish-config/refs/heads/master/etc/varnish6.vcl</template_url>
             </general>
             <cron>
                 <schedule>0 2 * * *</schedule>
             </cron>
-
         </taurus_varnish_config>
     </default>
 </config>
