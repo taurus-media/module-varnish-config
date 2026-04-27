@@ -1,0 +1,19 @@
+{
+    "name": "taurus-media/module-varnish-config",
+    "description": "Magento 2 module that automatically downloads a VCL template and applies Varnish configuration via cron",
+    "type": "magento2-module",
+    "license": "MIT",
+    "require": {
+        "php": ">=8.1",
+        "magento/framework": "*",
+        "magento/module-page-cache": "*"
+    },
+    "autoload": {
+        "files": [
+            "registration.php"
+        ],
+        "psr-4": {
+            "Taurus\\VarnishConfig\\": ""
+        }
+    }
+}

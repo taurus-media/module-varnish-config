@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <tab id="taurus" translate="label" sortOrder="500">
+            <label>Taurus</label>
+        </tab>
+        <section id="taurus_varnish_config" translate="label" sortOrder="100" showInDefault="1" showInWebsite="0" showInStore="0">
+            <label>Varnish Extended</label>
+            <tab>taurus</tab>
+            <resource>Taurus_VarnishConfig::config</resource>
+            <group id="general" translate="label" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
+                <label>General</label>
+                <field id="template_url" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>VCL Template URL</label>
+                    <comment>URL to download the VCL template file. Must use the same placeholder syntax as Magento's built-in VCL templates (e.g. /* {{ host }} */, /* {{ port }} */, /* {{ ips }} */, /* {{ grace_period }} */, /* {{ ssl_offloaded_header }} */, /* {{ design_exceptions_code }} */).</comment>
+                    <validate>required-entry validate-url</validate>
+                </field>
+            </group>
+            <group id="cron" translate="label" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0">
+                <label>Cron Schedule</label>
+                <field id="schedule" translate="label comment" type="text" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Schedule</label>
+                    <comment>Cron expression (default: 0 2 * * * — runs daily at 2:00 AM)</comment>
+                    <validate>required-entry</validate>
+                </field>
+            </group>
+
+        </section>
+    </system>
+</config>
