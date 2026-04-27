@@ -87,6 +87,12 @@ sub vcl_recv {
         set req.url = regsub(req.url, "[?|&]+$", "");
     }
 
+    # Sorts query string parameters alphabetically for cache normalization purposes,
+    # only when there are multiple parameters
+    if (req.url ~ "\?.+&.+") {
+        set req.url = std.querysort(req.url);
+    }
+
     # Static files caching
     if (req.url ~ "^/(pub/)?(media|static)/") {
         # Static files should not be cached by default
