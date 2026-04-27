@@ -1,8 +1,8 @@
-# VCL version 5.0 is not supported so it should be 4.0 even though actually used Varnish version is 6
+# VCL version 5.0 is not supported so it should be 4.0 even though actually used Varnish version is 7
 vcl 4.0;
 
 import std;
-# The minimal Varnish version is 6.0
+# The minimal Varnish version is 7.0
 # For SSL offloading, pass the following header in your proxy server or load balancer: '/* {{ ssl_offloaded_header }} */: https'
 
 backend default {
