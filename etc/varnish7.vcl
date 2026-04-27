@@ -82,8 +82,8 @@ sub vcl_recv {
     std.collect(req.http.Cookie);
 
     # Remove all marketing get parameters to minimize the cache objects
-    if (req.url ~ "(\?|&)(aci|qty|hl|__cf_chl_tk|brid|ved|sqr|aiden[a-z]+|wbraid|srsltid|channable|overlaytest|useriod|email_hash|mpid|msclkid|gbraid|bl3nlclid|gclid|cx|ie|cof|siteurl|zanpid|origin|fbclid|mc_[a-z]+|utm_[a-z]+|gad_[a-z]+|follo_[a-z]+|_bta_[a-z]+)=") {
-        set req.url = regsuball(req.url, "(?<=[?&])(aci|qty|hl|__cf_chl_tk|brid|ved|sqr|aiden[a-z]+|wbraid|srsltid|channable|overlaytest|useriod|email_hash|mpid|msclkid|gbraid|bl3nlclid|gclid|cx|ie|cof|siteurl|zanpid|origin|fbclid|mc_[a-z]+|utm_[a-z]+|gad_[a-z]+|follo_[a-z]+|_bta_[a-z]+)(=[-_A-z0-9+()%.]+)?&?", "");
+    if (req.url ~ "(\?|&)(aci|qty|hl|_kx|__cf_chl_tk|brid|ved|sqr|aiden[a-z]+|wbraid|srsltid|channable|overlaytest|useriod|email_hash|mpid|msclkid|gbraid|bl3nlclid|gclid|cx|ie|cof|siteurl|zanpid|origin|fbclid|mc_[a-z]+|utm_[a-z]+|gad_[a-z]+|follo_[a-z]+|_bta_[a-z]+)=") {
+        set req.url = regsuball(req.url, "(?<=[?&])(aci|qty|hl|_kx|__cf_chl_tk|brid|ved|sqr|aiden[a-z]+|wbraid|srsltid|channable|overlaytest|useriod|email_hash|mpid|msclkid|gbraid|bl3nlclid|gclid|cx|ie|cof|siteurl|zanpid|origin|fbclid|mc_[a-z]+|utm_[a-z]+|gad_[a-z]+|follo_[a-z]+|_bta_[a-z]+)(=[-_A-z0-9+()%.]+)?&?", "");
         set req.url = regsub(req.url, "[?|&]+$", "");
     }
 
