@@ -18,7 +18,7 @@ class UpdateVclCommand extends Command
      */
     public function __construct(
         private readonly VclManager $vclManager,
-        string $name = null
+        ?string $name = null
     ) {
         parent::__construct($name);
     }

@@ -18,10 +18,10 @@ use Psr\Log\LoggerInterface;
 
 class VclManager
 {
-    private const XML_PATH_TEMPLATE_URL  = 'taurus_varnish_config/general/template_url';
+    private const XML_PATH_TEMPLATE_URL = 'taurus_varnish_config/general/template_url';
 
     private const TEMPLATE_FILENAME = 'varnish_extended_template.vcl';
-    private const OUTPUT_FILENAME   = 'varnish_extended.vcl';
+    private const OUTPUT_FILENAME = 'varnish_extended.vcl';
 
     /**
      * @param ScopeConfigInterface $scopeConfig
@@ -30,17 +30,20 @@ class VclManager
      * @param Shell $shell
      * @param VclGeneratorFactory $vclGeneratorFactory
      * @param SerializerInterface $serializer
+     * @param PageCacheConfig $pageCacheConfig
      * @param LoggerInterface $logger
      */
     public function __construct(
         private readonly ScopeConfigInterface $scopeConfig,
-        private readonly Filesystem $filesystem,
-        private readonly Curl $curl,
-        private readonly Shell $shell,
-        private readonly VclGeneratorFactory $vclGeneratorFactory,
-        private readonly SerializerInterface $serializer,
-        private readonly LoggerInterface $logger
-    ) {
+        private readonly Filesystem           $filesystem,
+        private readonly Curl                 $curl,
+        private readonly Shell                $shell,
+        private readonly VclGeneratorFactory  $vclGeneratorFactory,
+        private readonly SerializerInterface  $serializer,
+        private readonly PageCacheConfig      $pageCacheConfig,
+        private readonly LoggerInterface      $logger
+    )
+    {
     }
 
     /**
@@ -50,20 +53,19 @@ class VclManager
      */
     public function run(): void
     {
-        $templateUrl = trim((string) $this->scopeConfig->getValue(self::XML_PATH_TEMPLATE_URL));
+        if ($this->pageCacheConfig->getType() !== PageCacheConfig::VARNISH) {
+            throw new LocalizedException(__('Varnish is not configured as the full-page cache backend.'));
+        }
+
+        $templateUrl = trim((string)$this->scopeConfig->getValue(self::XML_PATH_TEMPLATE_URL));
         if ($templateUrl === '') {
             throw new LocalizedException(__('VCL template URL is not configured.'));
         }
 
         $templateContent = $this->downloadTemplate($templateUrl);
-        $templatePath    = $this->saveTemplate($templateContent);
-
-        try {
-            $vcl      = $this->generateVcl($templatePath);
-            $filePath = $this->saveVcl($vcl);
-        } finally {
-            $this->deleteTemplate($templatePath);
-        }
+        $templatePath = $this->saveTemplate($templateContent);
+        $vcl = $this->generateVcl($templatePath);
+        $filePath = $this->saveVcl($vcl);
 
         $this->applyVcl($filePath);
     }
@@ -75,7 +77,7 @@ class VclManager
     {
         $this->logger->info('Taurus_VarnishExtended: downloading VCL template', ['url' => $url]);
 
-        $this->curl->setTimeout(30);
+        $this->curl->setTimeout(10);
         $this->curl->get($url);
 
         $status = $this->curl->getStatus();
@@ -88,6 +90,10 @@ class VclManager
         $body = $this->curl->getBody();
         if (empty($body)) {
             throw new LocalizedException(__('Downloaded VCL template is empty.'));
+        }
+
+        if (strpos($body, 'vcl_recv') === false) {
+            throw new LocalizedException(__('Downloaded VCL template is broken.'));
         }
 
         return $body;
@@ -119,10 +125,10 @@ class VclManager
         );
 
         $vclGenerator = $this->vclGeneratorFactory->create([
-            'backendHost'      => $this->scopeConfig->getValue(PageCacheConfig::XML_VARNISH_PAGECACHE_BACKEND_HOST),
-            'backendPort'      => $this->scopeConfig->getValue(PageCacheConfig::XML_VARNISH_PAGECACHE_BACKEND_PORT),
-            'accessList'       => $accessList ? explode(',', $accessList) : [],
-            'gracePeriod'      => $this->scopeConfig->getValue(PageCacheConfig::XML_VARNISH_PAGECACHE_GRACE_PERIOD),
+            'backendHost' => $this->scopeConfig->getValue(PageCacheConfig::XML_VARNISH_PAGECACHE_BACKEND_HOST),
+            'backendPort' => $this->scopeConfig->getValue(PageCacheConfig::XML_VARNISH_PAGECACHE_BACKEND_PORT),
+            'accessList' => $accessList ? explode(',', $accessList) : [],
+            'gracePeriod' => $this->scopeConfig->getValue(PageCacheConfig::XML_VARNISH_PAGECACHE_GRACE_PERIOD),
             'sslOffloadedHeader' => $this->scopeConfig->getValue(Request::XML_PATH_OFFLOADER_HEADER),
             'designExceptions' => $rawDesignExceptions
                 ? $this->serializer->unserialize($rawDesignExceptions)
@@ -144,24 +150,6 @@ class VclManager
         $this->logger->info('Taurus_VarnishExtended: VCL saved', ['path' => $absolutePath]);
 
         return $absolutePath;
-    }
-
-    /**
-     * Remove the temporary downloaded template file.
-     */
-    private function deleteTemplate(string $templateRelativePath): void
-    {
-        try {
-            $rootDir = $this->filesystem->getDirectoryWrite(DirectoryList::ROOT);
-            if ($rootDir->isExist($templateRelativePath)) {
-                $rootDir->delete($templateRelativePath);
-            }
-        } catch (\Exception $e) {
-            $this->logger->warning(
-                'Taurus_VarnishExtended: could not delete temp template file',
-                ['path' => $templateRelativePath, 'error' => $e->getMessage()]
-            );
-        }
     }
 
     /**
