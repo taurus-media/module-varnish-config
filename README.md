@@ -14,6 +14,8 @@ A Magento 2 module that automatically keeps your Varnish configuration up to dat
    varnishadm vcl.use magento2
    ```
 
+**NOTE:** `vcl.load` and `vcl.use` commands are not flushing the already cached pages.
+
 ## Requirements
 
 - Magento 2 with `Magento_PageCache` module
