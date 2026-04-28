@@ -3,7 +3,7 @@
     <default>
         <taurus_varnish_config>
             <general>
-                <template_url>https://raw.githubusercontent.com/taurus-media/module-varnish-config/refs/heads/master/etc/varnish7.vcl</template_url>
+                <template_url>https://raw.githubusercontent.com/taurus-media/module-varnish-config/master/etc/varnish7.vcl</template_url>
             </general>
             <cron>
                 <schedule>0 2 * * *</schedule>
