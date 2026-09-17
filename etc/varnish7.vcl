@@ -60,6 +60,11 @@ sub vcl_recv {
         return (pass);
     }
 
+    # Bypass Anowave_Ec endpoints that are always uncacheable
+    if (req.url ~ "/datalayer/index/events") {
+        return (pass);
+    }
+
     # Bypass health check requests
     if (req.url ~ "^/(pub/)?(health_check.php)$") {
         return (pass);
